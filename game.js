@@ -101,10 +101,12 @@ window.onload = function() {
 		// playerName.x = chara.x;
 		// playerName.y = gameHeight - 70;
 		//gameLayer.addChild(playerName);
-
-		let bombSpeed = core.fps / 2;
-		let thingSpeed = core.fps;
-		let starSpeed = Math.floor(Math.random() * 100 + 2000);
+		let bombTimer = 0;
+		let thingTimer = 0;
+		let starTimer = 0;
+		let bombSpeed = 0.5;
+		let thingSpeed = 0.8;
+		let starSpeed = Math.floor(Math.random() * 10) + 20;
 		let starEaten = false;
 
 		/*
@@ -217,6 +219,11 @@ window.onload = function() {
 
 		//anything moving
 		scene.onenterframe = function() {
+			bombTimer += 1 / core.fps;
+			
+			thingTimer += 1 / core.fps;
+			starTimer += 1 / core.fps;
+
 			scene.addChild(startImage);
 			if (core.frame > 50) {
 				scene.removeChild(startImage);
@@ -233,10 +240,10 @@ window.onload = function() {
 				gameLayer.addChild(flashForStar);
 				starFlash();
 			}
-
 			
 			//bomb
-			if(core.frame % bombSpeed == 0){
+			if(bombTimer >= bombSpeed) {
+				bombTimer = 0;
 				let bomb = createBomb();
 				bomb.onenterframe = function() {
 					if (gameOver) return;
@@ -260,7 +267,8 @@ window.onload = function() {
 				}
 			}
 			//thing
-			if(core.frame % thingSpeed == 0 && core.frame > 10){
+			if(thingTimer >= thingSpeed && core.frame > 10){
+				thingTimer = 0;
 				let thing = createThing();
 				thing.onenterframe = function() {
 					if (gameOver) return;
@@ -275,9 +283,8 @@ window.onload = function() {
 						}else {
 							score += 2;
 						}
-						if (score % 10 == 0) bombSpeed -= 2;
-						if (bombSpeed < 5) bombSpeed = 5;
-
+						if (score % 10 === 0) bombSpeed -= 0.05;
+						if (bombSpeed < 0.05) bombSpeed = 0.05;
 						scoreLabel.text = 'Score: ' + score;
 						gameLayer.removeChild(this);
 					}					
@@ -288,7 +295,8 @@ window.onload = function() {
 			//star
 			//for test
 			//if(core.frame % starSpeed == 0){
-			if(core.frame % starSpeed == 0 && core.frame > 10){
+			if(starTimer >= starSpeed && core.frame > 10){
+				starTimer = 0;
 				let star = createStar();
 				star.onenterframe = function() {
 					if (gameOver) return;
