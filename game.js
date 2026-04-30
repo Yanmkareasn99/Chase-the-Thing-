@@ -4,7 +4,8 @@ window.onload = function() {
 	let gameHeight = 350;
 	let headerHeight = 60;
 	var core = new Core(gameWidth, gameHeight);
-	core.fps = 30;
+	core.fps = 40;
+	let speedMultiplier = 60 / core.fps;
 	core.preload('./image/chara1.png'
 		,'./image/icon0.png'
 		,'./image/gameover.png'
@@ -102,16 +103,51 @@ window.onload = function() {
 		//gameLayer.addChild(playerName);
 
 		let bombSpeed = core.fps / 2;
-		let thingSpeed = core.fps + (core.fps / 3);
+		let thingSpeed = core.fps;
 		let starSpeed = Math.floor(Math.random() * 100 + 2000);
 		let starEaten = false;
 
+		/*
+		core.frame % thingSpeed == 0 && core.frame > 10
+		core.frame % bombSpeed == 0
+		Core.frame % starSpeed == 0 && core.frame > 10
+		*/
 		function screenFlash() {
 			flash.opacity = 0.3;
 		}
 
 		function starFlash() {
 			flashForStar.opacity = 0.2;
+		}
+
+		function createBomb() {
+			let bomb = new Sprite(16, 16);
+			bomb.image = core.assets['./image/icon0.png'];
+			bomb.frame = 24;
+			bomb.x = chara.x + (Math.random() * 300 - 150);
+			bomb.y = 0;
+			gameLayer.addChild(bomb);
+			return bomb;
+		}
+
+		function createThing() {
+			let thing = new Sprite(16, 16);
+			thing.image = core.assets['./image/icon0.png'];
+			thing.frame = 29; //watermelon
+			thing.x = Math.random() * (gameWidth - thing.width);
+			thing.y = 0;
+			gameLayer.addChild(thing);
+			return thing;
+		}
+
+		function createStar() {
+			let star = new Sprite(16, 16);
+			star.image = core.assets['./image/icon0.png'];
+			star.frame = 30;
+			star.x = Math.random() * (gameWidth - star.width);
+			star.y = 0;
+			gameLayer.addChild(star);
+			return star;
 		}
 
 		// function respawnThing() {
@@ -201,17 +237,10 @@ window.onload = function() {
 			
 			//bomb
 			if(core.frame % bombSpeed == 0){
-				let bomb = new Sprite(16, 16);
-				bomb.image = core.assets['./image/icon0.png'];
-
-				bomb.frame = 24;
-
-				bomb.x = chara.x + (Math.random() * 300 - 150);
-				bomb.y = 0;
-				gameLayer.addChild(bomb);
+				let bomb = createBomb();
 				bomb.onenterframe = function() {
 					if (gameOver) return;
-					this.y += 2;
+					this.y += 2 * speedMultiplier;;
 					if (this.y > gameHeight || this.x < 0 || this.x > gameWidth - this.width) {
 						gameLayer.removeChild(this);
 					}
@@ -221,29 +250,21 @@ window.onload = function() {
 							score ++;
 							scoreLabel.text = 'Score: ' + score;
 							gameLayer.removeChild(this);
-
 							return;
 						}
 						gameOver = true;
 						scene.addChild(gameOverImage);
 						//core.stop();
 					}					
-					
-				}
 				
+				}
 			}
 			//thing
 			if(core.frame % thingSpeed == 0 && core.frame > 10){
-
-				let thing = new Sprite(16, 16);
-				thing.image = core.assets['./image/icon0.png'];
-				thing.frame = 29; //watermelon
-				thing.x = Math.random() * (gameWidth - thing.width);
-				thing.y = 0;
-				gameLayer.addChild(thing);
+				let thing = createThing();
 				thing.onenterframe = function() {
 					if (gameOver) return;
-					this.y += 2;
+					this.y += 2 * speedMultiplier;
 					if (this.y > gameHeight || this.x < 0 || this.x > gameWidth - this.width) {
 						gameLayer.removeChild(this);
 					}
@@ -260,23 +281,18 @@ window.onload = function() {
 						scoreLabel.text = 'Score: ' + score;
 						gameLayer.removeChild(this);
 					}					
-					
+				
 				}
+				
 			}
 			//star
 			//for test
 			//if(core.frame % starSpeed == 0){
 			if(core.frame % starSpeed == 0 && core.frame > 10){
-
-				let star = new Sprite(16, 16);
-				star.image = core.assets['./image/icon0.png'];
-				star.frame = 30;
-				star.x = Math.random() * (gameWidth - star.width);
-				star.y = 0;
-				gameLayer.addChild(star);
+				let star = createStar();
 				star.onenterframe = function() {
 					if (gameOver) return;
-					this.y += 2;
+					this.y += 2 * speedMultiplier;
 					if (this.y > gameHeight || this.x < 0 || this.x > gameWidth - this.width) {
 						gameLayer.removeChild(this);
 					}
@@ -286,6 +302,7 @@ window.onload = function() {
 						gameLayer.removeChild(this);
 					}
 				}
+				
 			}
 			//timer
 			timer -= 1 / core.fps;
@@ -305,12 +322,12 @@ window.onload = function() {
 			if (core.input.left) {
 				moving = true;
 				chara.scaleX = -1;
-				chara.x -= 2;
+				chara.x -= 2 * speedMultiplier;
 			}
 			if (core.input.right) {
 				moving = true;
 				chara.scaleX = 1;
-				chara.x += 2;
+				chara.x += 2 * speedMultiplier;
 			}
 
 			
